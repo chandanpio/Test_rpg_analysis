@@ -1,0 +1,88 @@
+**FREE
+CTL-OPT DFTACTGRP(*NO);
+
+// Parameters
+DCL-PI CUST_VALIDATE;
+  CustID ZONED(10:0);
+  CustDS LIKEDS(Customer);
+END-PI;
+
+// Data Structure
+DCL-DS Customer QUALIFIED;
+  CustID ZONED(10:0);
+  Name VARCHAR(50);
+  Address VARCHAR(100);
+  City VARCHAR(50);
+  State CHAR(2);
+  Zip CHAR(10);
+  Phone CHAR(15);
+  Email VARCHAR(100);
+  CreditLimit PACKED(15:2);
+END-DS;
+
+// Files
+DCL-F CUSTOMERS USROPN KEYED;
+
+// Variables
+DCL-S Temp PACKED(15:2);
+DCL-S I INT(10);
+
+// Open
+OPEN CUSTOMERS;
+
+// Logic
+MONITOR;
+  CHAIN CustID CUSTOMERS;
+  IF %FOUND;
+    CustDS.Name = CUSTNAME;  // Assume field
+    CustDS.CreditLimit = CREDLIM;
+    // Credit check
+    BEGSR CreditCheck;
+      IF CustDS.CreditLimit < 100;
+        DSPLY 'Low credit limit';
+        RETURN;
+      ENDIF;
+      // Simulate complex check
+      FOR I = 1 TO 50;
+        Temp = CustDS.CreditLimit / (I + 1);
+      ENDFOR;
+    ENDSR;
+  ELSE;
+    DSPLY 'Customer not found';
+    RETURN;
+  ENDIF;
+ON-ERROR;
+  DSPLY 'Customer validation error';
+ENDMON;
+
+// Log
+EXEC SQL INSERT INTO LOGTABLE VALUES(CURRENT_TIMESTAMP, 'Customer validated: ' + %CHAR(CustID));
+
+// PAD: Subroutines
+BEGSR ValidateExtra;
+  // Dummy validation
+  FOR I = 1 TO 100;
+    IF CustDS.Name <> *BLANKS;
+      Temp += 1;
+    ENDIF;
+  ENDFOR;
+ENDSR;
+
+// ... (Add 5 more subroutines, each ~100 lines)
+
+// Comment Block
+// Line 1: Customer validation
+// Line 2: Checks DB and credit
+// ... (Add 200 comment lines)
+
+// Dummy Loop
+FOR I = 1 TO 300;
+  Temp = I * 1.5;
+ENDFOR;
+
+// Close
+CLOSE CUSTOMERS;
+
+// End
+*INLR = *ON;
+RETURN;

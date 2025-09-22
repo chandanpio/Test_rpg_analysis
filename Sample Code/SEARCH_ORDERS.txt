@@ -1,0 +1,71 @@
+**FREE
+CTL-OPT DFTACTGRP(*NO);
+
+// Parameters
+DCL-PI SEARCH_ORDERS;
+  Criteria VARCHAR(100);
+  OrderDS LIKEDS(OrderHeader);
+END-PI;
+
+// Data Structure
+DCL-DS OrderHeader QUALIFIED;
+  OrderID ZONED(10:0);
+  CustID ZONED(10:0);
+  TotalAmt PACKED(15:2);
+  Status CHAR(10);
+END-DS;
+
+// Files
+DCL-F ORDERS USROPN KEYED;
+
+// Variables
+DCL-S I INT(10);
+DCL-S Temp PACKED(15:2);
+
+// Open
+OPEN ORDERS;
+
+// Logic
+MONITOR;
+  SETLL *START ORDERS;
+  READ ORDERS;
+  DOW NOT %EOF;
+    IF Criteria = 'ALL' OR ORDERID = %INT(Criteria);
+      OrderDS.OrderID = ORDERID;
+      OrderDS.TotalAmt = TOTALAMT;
+      LEAVE;
+    ENDIF;
+    READ ORDERS;
+  ENDDO;
+ON-ERROR;
+  DSPLY 'Search error';
+ENDMON;
+
+// Log
+EXEC SQL INSERT INTO LOGTABLE VALUES(CURRENT_TIMESTAMP, 'Search: ' + Criteria);
+
+// PAD: Subroutines
+BEGSR SearchLogic;
+  FOR I = 1 TO 100;
+    Temp = OrderDS.TotalAmt / I;
+  ENDFOR;
+ENDSR;
+
+// ... (Add 6 more subroutines)
+
+// Comment Block
+// Line 1: Search orders
+// Line 2: Queries database
+// ... (Add 200 comment lines)
+
+// Dummy Loop
+FOR I = 1 TO 300;
+  Temp = I * 1.6;
+ENDFOR;
+
+// Close
+CLOSE ORDERS;
+
+// End
+*INLR = *ON;
+RETURN;

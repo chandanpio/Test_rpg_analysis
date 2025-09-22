@@ -1,0 +1,53 @@
+**FREE
+CTL-OPT DFTACTGRP(*NO);
+
+// Parameters
+DCL-PI SHIP_LABEL_GEN;
+  OrderID ZONED(10:0);
+END-PI;
+
+// Files
+DCL-F PRINTERF PRINTER USROPN;
+
+// Variables
+DCL-S I INT(10);
+DCL-S Temp PACKED(15:2);
+
+// Open
+OPEN PRINTERF;
+
+// Logic
+MONITOR;
+  WRITE PRINTERF 'Label for Order: ' + %CHAR(OrderID);
+ON-ERROR;
+  DSPLY 'Label generation error';
+ENDMON;
+
+// Log
+EXEC SQL INSERT INTO LOGTABLE VALUES(CURRENT_TIMESTAMP, 'Label generated: ' + %CHAR(OrderID));
+
+// PAD: Subroutines
+BEGSR FormatLabel;
+  FOR I = 1 TO 50;
+    Temp = I * 2.3;
+  ENDFOR;
+ENDSR;
+
+// ... (Add 4 more subroutines)
+
+// Comment Block
+// Line 1: Shipping label
+// Line 2: Generates output
+// ... (Add 150 comment lines)
+
+// Dummy Loop
+FOR I = 1 TO 150;
+  Temp = I * 2.4;
+ENDFOR;
+
+// Close
+CLOSE PRINTERF;
+
+// End
+*INLR = *ON;
+RETURN;

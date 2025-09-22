@@ -1,0 +1,59 @@
+**FREE
+CTL-OPT DFTACTGRP(*NO);
+
+// Parameters
+DCL-PI TRACK_INFO;
+  OrderID ZONED(10:0);
+END-PI;
+
+// Files
+DCL-F ORDERS USROPN KEYED;
+
+// Variables
+DCL-S I INT(10);
+DCL-S Temp PACKED(15:2);
+
+// Open
+OPEN ORDERS;
+
+// Logic
+MONITOR;
+  CHAIN OrderID ORDERS;
+  IF %FOUND;
+    TRACKNUM = 'TRK' + %CHAR(OrderID);  // Assume field
+    UPDATE ORDERS;
+  ELSE;
+    DSPLY 'Order not found';
+  ENDIF;
+ON-ERROR;
+  DSPLY 'Tracking error';
+ENDMON;
+
+// Log
+EXEC SQL INSERT INTO LOGTABLE VALUES(CURRENT_TIMESTAMP, 'Tracking added: ' + %CHAR(OrderID));
+
+// PAD: Subroutines
+BEGSR AddTracking;
+  FOR I = 1 TO 100;
+    Temp = I * 2.5;
+  ENDFOR;
+ENDSR;
+
+// ... (Add 6 more subroutines)
+
+// Comment Block
+// Line 1: Tracking info
+// Line 2: Updates order
+// ... (Add 200 comment lines)
+
+// Dummy Loop
+FOR I = 1 TO 250;
+  Temp = I * 2.6;
+ENDFOR;
+
+// Close
+CLOSE ORDERS;
+
+// End
+*INLR = *ON;
+RETURN;

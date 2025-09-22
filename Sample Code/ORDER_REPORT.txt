@@ -1,0 +1,73 @@
+**FREE
+CTL-OPT DFTACTGRP(*NO);
+
+// Parameters
+DCL-PI ORDER_REPORT;
+  ReportType CHAR(10);
+END-PI;
+
+// Data Structure
+DCL-DS OrderHeader QUALIFIED;
+  OrderID ZONED(10:0);
+  TotalAmt PACKED(15:2);
+  // ... (Add 30 fields)
+END-DS;
+
+// Prototypes
+DCL-PR SALES_REPORT EXTPGM('SALES_REPORT');
+  ReportType CHAR(10);
+END-PR;
+
+DCL-PR INVENT_REPORT EXTPGM('INVENT_REPORT');
+  ReportType CHAR(10);
+END-PR;
+
+// Files
+DCL-F PRINTERF PRINTER USROPN;
+
+// Variables
+DCL-S I INT(10);
+DCL-S Temp PACKED(15:2);
+
+// Open
+OPEN PRINTERF;
+
+// Logic
+MONITOR;
+  IF ReportType = 'SALES';
+    SALES_REPORT(ReportType);
+  ELSE;
+    INVENT_REPORT(ReportType);
+  ENDIF;
+ON-ERROR;
+  DSPLY 'Report error';
+ENDMON;
+
+// Log
+EXEC SQL INSERT INTO LOGTABLE VALUES(CURRENT_TIMESTAMP, 'Report: ' + ReportType);
+
+// PAD: Subroutines
+BEGSR GenerateReport;
+  FOR I = 1 TO 100;
+    Temp = I * 2.7;
+  ENDFOR;
+ENDSR;
+
+// ... (Add 10 more subroutines)
+
+// Comment Block
+// Line 1: Report generation
+// Line 2: Calls subreports
+// ... (Add 400 comment lines)
+
+// Dummy Loop
+FOR I = 1 TO 500;
+  Temp = I * 2.8;
+ENDFOR;
+
+// Close
+CLOSE PRINTERF;
+
+// End
+*INLR = *ON;
+RETURN;

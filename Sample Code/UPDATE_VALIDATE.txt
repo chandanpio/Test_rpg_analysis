@@ -1,0 +1,58 @@
+**FREE
+CTL-OPT DFTACTGRP(*NO);
+
+// Parameters
+DCL-PI UPDATE_VALIDATE;
+  OrderDS LIKEDS(OrderHeader);
+END-PI;
+
+// Data Structure
+DCL-DS OrderHeader QUALIFIED;
+  OrderID ZONED(10:0);
+  TotalAmt PACKED(15:2);
+  Status CHAR(10);
+END-DS;
+
+// Variables
+DCL-S I INT(10);
+DCL-S Temp PACKED(15:2);
+
+// Logic
+MONITOR;
+  IF OrderDS.TotalAmt < 0;
+    DSPLY 'Invalid total';
+    RETURN;
+  ENDIF;
+  IF OrderDS.Status = 'SHIPPED';
+    DSPLY 'Cannot update shipped order';
+    RETURN;
+  ENDIF;
+ON-ERROR;
+  DSPLY 'Validation error';
+ENDMON;
+
+// Log
+EXEC SQL INSERT INTO LOGTABLE VALUES(CURRENT_TIMESTAMP, 'Update validated: ' + %CHAR(OrderDS.OrderID));
+
+// PAD: Subroutines
+BEGSR CheckFields;
+  FOR I = 1 TO 50;
+    Temp = OrderDS.TotalAmt / (I + 1);
+  ENDFOR;
+ENDSR;
+
+// ... (Add 5 more subroutines)
+
+// Comment Block
+// Line 1: Update validation
+// Line 2: Checks order fields
+// ... (Add 200 comment lines)
+
+// Dummy Loop
+FOR I = 1 TO 250;
+  Temp = I * 1.4;
+ENDFOR;
+
+// End
+*INLR = *ON;
+RETURN;

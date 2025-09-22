@@ -1,0 +1,56 @@
+**FREE
+CTL-OPT DFTACTGRP(*NO);
+
+// Parameters
+DCL-PI ORDER_CALC;
+  OrderDS LIKEDS(OrderHeader);
+END-PI;
+
+// Data Structure
+DCL-DS OrderHeader QUALIFIED;
+  OrderID ZONED(10:0);
+  CustID ZONED(10:0);
+  TotalAmt PACKED(15:2);
+  Discount PACKED(5:2);
+  TaxAmt PACKED(15:2);
+END-DS;
+
+// Variables
+DCL-S TaxRate PACKED(5:2) INZ(0.08);
+DCL-S I INT(10);
+DCL-S Temp PACKED(15:2);
+
+// Logic
+MONITOR;
+  OrderDS.Discount = OrderDS.TotalAmt * 0.05;  // 5% discount
+  OrderDS.TaxAmt = (OrderDS.TotalAmt - OrderDS.Discount) * TaxRate;
+  OrderDS.TotalAmt += OrderDS.TaxAmt;
+ON-ERROR;
+  DSPLY 'Calculation error';
+ENDMON;
+
+// Log
+EXEC SQL INSERT INTO LOGTABLE VALUES(CURRENT_TIMESTAMP, 'Order calculated: ' + %CHAR(OrderDS.OrderID));
+
+// PAD: Subroutines
+BEGSR CalcTax;
+  FOR I = 1 TO 50;
+    Temp = OrderDS.TotalAmt * TaxRate / I;
+  ENDFOR;
+ENDSR;
+
+// ... (Add 5 more subroutines, each ~80 lines)
+
+// Comment Block
+// Line 1: Order calculation
+// Line 2: Applies tax and discount
+// ... (Add 150 comment lines)
+
+// Dummy Loop
+FOR I = 1 TO 200;
+  Temp = I * 1.1;
+ENDFOR;
+
+// End
+*INLR = *ON;
+RETURN;

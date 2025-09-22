@@ -1,0 +1,81 @@
+**FREE
+CTL-OPT DFTACTGRP(*NO);
+
+// Parameters
+DCL-PI ORDER_INQUIRY;
+  SearchCriteria VARCHAR(100);
+END-PI;
+
+// Data Structure
+DCL-DS OrderHeader QUALIFIED;
+  OrderID ZONED(10:0);
+  CustID ZONED(10:0);
+  TotalAmt PACKED(15:2);
+  Status CHAR(10);
+  // ... (Add 30 fields)
+END-DS;
+
+// Prototypes
+DCL-PR SEARCH_ORDERS EXTPGM('SEARCH_ORDERS');
+  Criteria VARCHAR(100);
+  OrderDS LIKEDS(OrderHeader);
+END-PR;
+
+DCL-PR DISPLAY_DETAILS EXTPGM('DISPLAY_DETAILS');
+  OrderDS LIKEDS(OrderHeader);
+END-PR;
+
+DCL-PR PRINT_SUMMARY EXTPGM('PRINT_SUMMARY');
+  OrderDS LIKEDS(OrderHeader);
+END-PR;
+
+// Files
+DCL-F ORDERS USROPN KEYED;
+DCL-F INQSCR WORKSTN USROPN;
+
+// Variables
+DCL-S I INT(10);
+DCL-S Temp PACKED(15:2);
+
+// Open
+OPEN ORDERS;
+OPEN INQSCR;
+
+// Logic
+MONITOR;
+  DCL-DS FoundOrder LIKEDS(OrderHeader);
+  SEARCH_ORDERS(SearchCriteria : FoundOrder);
+  DISPLAY_DETAILS(FoundOrder);
+  PRINT_SUMMARY(FoundOrder);
+ON-ERROR;
+  DSPLY 'Inquiry error';
+ENDMON;
+
+// Log
+EXEC SQL INSERT INTO LOGTABLE VALUES(CURRENT_TIMESTAMP, 'Inquiry: ' + SearchCriteria);
+
+// PAD: Subroutines
+BEGSR FormatInquiry;
+  FOR I = 1 TO 100;
+    Temp = FoundOrder.TotalAmt / I;
+  ENDFOR;
+ENDSR;
+
+// ... (Add 10 more subroutines)
+
+// Comment Block
+// Line 1: Order inquiry
+// Line 2: Searches and displays
+// ... (Add 400 comment lines)
+
+// Dummy Loop
+FOR I = 1 TO 600;
+  Temp = I * 1.5;
+ENDFOR;
+
+// Close
+CLOSE *ALL;
+
+// End
+*INLR = *ON;
+RETURN;

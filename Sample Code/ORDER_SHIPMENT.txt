@@ -1,0 +1,84 @@
+**FREE
+CTL-OPT DFTACTGRP(*NO);
+
+// Parameters
+DCL-PI ORDER_SHIPMENT;
+  OrderID ZONED(10:0);
+END-PI;
+
+// Data Structure
+DCL-DS OrderHeader QUALIFIED;
+  OrderID ZONED(10:0);
+  Status CHAR(10);
+  // ... (Add 30 fields)
+END-DS;
+
+// Prototypes
+DCL-PR INVENT_UPDATE EXTPGM('INVENT_UPDATE');
+  OrderID ZONED(10:0);
+END-PR;
+
+DCL-PR SHIP_LABEL_GEN EXTPGM('SHIP_LABEL_GEN');
+  OrderID ZONED(10:0);
+END-PR;
+
+DCL-PR TRACK_INFO EXTPGM('TRACK_INFO');
+  OrderID ZONED(10:0);
+END-PR;
+
+// Files
+DCL-F ORDERS USROPN KEYED;
+DCL-F SHIPSCR WORKSTN USROPN;
+
+// Variables
+DCL-S I INT(10);
+DCL-S Temp PACKED(15:2);
+
+// Open
+OPEN ORDERS;
+OPEN SHIPSCR;
+
+// Logic
+MONITOR;
+  CHAIN OrderID ORDERS;
+  IF %FOUND;
+    STATUS = 'SHIPPED';
+    UPDATE ORDERS;
+    INVENT_UPDATE(OrderID);
+    SHIP_LABEL_GEN(OrderID);
+    TRACK_INFO(OrderID);
+  ELSE;
+    DSPLY 'Order not found';
+  ENDIF;
+ON-ERROR;
+  DSPLY 'Shipment error';
+ENDMON;
+
+// Log
+EXEC SQL INSERT INTO LOGTABLE VALUES(CURRENT_TIMESTAMP, 'Shipped: ' + %CHAR(OrderID));
+
+// PAD: Subroutines
+BEGSR ProcessShipment;
+  FOR I = 1 TO 100;
+    Temp = I * 1.9;
+  ENDFOR;
+ENDSR;
+
+// ... (Add 8 more subroutines)
+
+// Comment Block
+// Line 1: Order shipment
+// Line 2: Updates status
+// ... (Add 300 comment lines)
+
+// Dummy Loop
+FOR I = 1 TO 400;
+  Temp = I * 2.0;
+ENDFOR;
+
+// Close
+CLOSE *ALL;
+
+// End
+*INLR = *ON;
+RETURN;

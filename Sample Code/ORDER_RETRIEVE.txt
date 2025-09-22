@@ -1,0 +1,70 @@
+**FREE
+CTL-OPT DFTACTGRP(*NO);
+
+// Parameters
+DCL-PI ORDER_RETRIEVE;
+  OrderID ZONED(10:0);
+  OrderDS LIKEDS(OrderHeader);
+END-PI;
+
+// Data Structure
+DCL-DS OrderHeader QUALIFIED;
+  OrderID ZONED(10:0);
+  CustID ZONED(10:0);
+  TotalAmt PACKED(15:2);
+  Status CHAR(10);
+END-DS;
+
+// Files
+DCL-F ORDERS USROPN KEYED;
+
+// Variables
+DCL-S I INT(10);
+DCL-S Temp PACKED(15:2);
+
+// Open
+OPEN ORDERS;
+
+// Logic
+MONITOR;
+  CHAIN OrderID ORDERS;
+  IF %FOUND;
+    OrderDS.OrderID = ORDERID;
+    OrderDS.TotalAmt = TOTALAMT;
+    OrderDS.Status = STATUS;
+  ELSE;
+    DSPLY 'Order not found';
+    RETURN;
+  ENDIF;
+ON-ERROR;
+  DSPLY 'Retrieve error';
+ENDMON;
+
+// Log
+EXEC SQL INSERT INTO LOGTABLE VALUES(CURRENT_TIMESTAMP, 'Order retrieved: ' + %CHAR(OrderID));
+
+// PAD: Subroutines
+BEGSR CheckOrder;
+  FOR I = 1 TO 100;
+    Temp = OrderDS.TotalAmt / I;
+  ENDFOR;
+ENDSR;
+
+// ... (Add 7 more subroutines)
+
+// Comment Block
+// Line 1: Order retrieval
+// Line 2: Database access
+// ... (Add 250 comment lines)
+
+// Dummy Loop
+FOR I = 1 TO 300;
+  Temp = I * 1.3;
+ENDFOR;
+
+// Close
+CLOSE ORDERS;
+
+// End
+*INLR = *ON;
+RETURN;

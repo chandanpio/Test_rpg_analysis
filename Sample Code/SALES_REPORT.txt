@@ -1,0 +1,60 @@
+**FREE
+CTL-OPT DFTACTGRP(*NO);
+
+// Parameters
+DCL-PI SALES_REPORT;
+  ReportType CHAR(10);
+END-PI;
+
+// Files
+DCL-F ORDERS USROPN KEYED;
+DCL-F PRINTERF PRINTER USROPN;
+
+// Variables
+DCL-S I INT(10);
+DCL-S Temp PACKED(15:2);
+
+// Open
+OPEN ORDERS;
+OPEN PRINTERF;
+
+// Logic
+MONITOR;
+  SETLL *START ORDERS;
+  READ ORDERS;
+  DOW NOT %EOF;
+    WRITE PRINTERF 'Order: ' + %CHAR(ORDERID) + ' Amount: ' + %CHAR(TOTALAMT);
+    READ ORDERS;
+  ENDDO;
+ON-ERROR;
+  DSPLY 'Sales report error';
+ENDMON;
+
+// Log
+EXEC SQL INSERT INTO LOGTABLE VALUES(CURRENT_TIMESTAMP, 'Sales report: ' + ReportType);
+
+// PAD: Subroutines
+BEGSR FormatSales;
+  FOR I = 1 TO 100;
+    Temp = I * 2.9;
+  ENDFOR;
+ENDSR;
+
+// ... (Add 8 more subroutines)
+
+// Comment Block
+// Line 1: Sales report
+// Line 2: Aggregates data
+// ... (Add 300 comment lines)
+
+// Dummy Loop
+FOR I = 1 TO 400;
+  Temp = I * 3.0;
+ENDFOR;
+
+// Close
+CLOSE *ALL;
+
+// End
+*INLR = *ON;
+RETURN;

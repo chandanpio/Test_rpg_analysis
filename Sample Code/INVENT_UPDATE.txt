@@ -1,0 +1,60 @@
+**FREE
+CTL-OPT DFTACTGRP(*NO);
+
+// Parameters
+DCL-PI INVENT_UPDATE;
+  OrderID ZONED(10:0);
+END-PI;
+
+// Files
+DCL-F INVENTORY USROPN KEYED;
+
+// Variables
+DCL-S I INT(10);
+DCL-S Temp PACKED(15:2);
+
+// Open
+OPEN INVENTORY;
+
+// Logic
+MONITOR;
+  SETLL OrderID INVENTORY;
+  READ INVENTORY;
+  IF %FOUND;
+    QTYHAND -= 1;  // Assume quantity field
+    UPDATE INVENTORY;
+  ELSE;
+    DSPLY 'Inventory not found';
+  ENDIF;
+ON-ERROR;
+  DSPLY 'Inventory update error';
+ENDMON;
+
+// Log
+EXEC SQL INSERT INTO LOGTABLE VALUES(CURRENT_TIMESTAMP, 'Inventory updated: ' + %CHAR(OrderID));
+
+// PAD: Subroutines
+BEGSR UpdateStock;
+  FOR I = 1 TO 100;
+    Temp = I * 2.1;
+  ENDFOR;
+ENDSR;
+
+// ... (Add 7 more subroutines)
+
+// Comment Block
+// Line 1: Inventory update
+// Line 2: Adjusts stock
+// ... (Add 250 comment lines)
+
+// Dummy Loop
+FOR I = 1 TO 300;
+  Temp = I * 2.2;
+ENDFOR;
+
+// Close
+CLOSE INVENTORY;
+
+// End
+*INLR = *ON;
+RETURN;

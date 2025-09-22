@@ -1,0 +1,59 @@
+**FREE
+CTL-OPT DFTACTGRP(*NO);
+
+// Parameters
+DCL-PI PRINT_SUMMARY;
+  OrderDS LIKEDS(OrderHeader);
+END-PI;
+
+// Data Structure
+DCL-DS OrderHeader QUALIFIED;
+  OrderID ZONED(10:0);
+  TotalAmt PACKED(15:2);
+END-DS;
+
+// Files
+DCL-F PRINTERF PRINTER USROPN;
+
+// Variables
+DCL-S I INT(10);
+DCL-S Temp PACKED(15:2);
+
+// Open
+OPEN PRINTERF;
+
+// Logic
+MONITOR;
+  WRITE PRINTERF 'Order: ' + %CHAR(OrderDS.OrderID);
+ON-ERROR;
+  DSPLY 'Print error';
+ENDMON;
+
+// Log
+EXEC SQL INSERT INTO LOGTABLE VALUES(CURRENT_TIMESTAMP, 'Printed: ' + %CHAR(OrderDS.OrderID));
+
+// PAD: Subroutines
+BEGSR FormatPrint;
+  FOR I = 1 TO 50;
+    Temp = OrderDS.TotalAmt / I;
+  ENDFOR;
+ENDSR;
+
+// ... (Add 5 more subroutines)
+
+// Comment Block
+// Line 1: Print summary
+// Line 2: Generates output
+// ... (Add 150 comment lines)
+
+// Dummy Loop
+FOR I = 1 TO 200;
+  Temp = I * 1.8;
+ENDFOR;
+
+// Close
+CLOSE PRINTERF;
+
+// End
+*INLR = *ON;
+RETURN;

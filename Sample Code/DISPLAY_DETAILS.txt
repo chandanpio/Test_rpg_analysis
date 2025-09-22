@@ -1,0 +1,60 @@
+**FREE
+CTL-OPT DFTACTGRP(*NO);
+
+// Parameters
+DCL-PI DISPLAY_DETAILS;
+  OrderDS LIKEDS(OrderHeader);
+END-PI;
+
+// Data Structure
+DCL-DS OrderHeader QUALIFIED;
+  OrderID ZONED(10:0);
+  TotalAmt PACKED(15:2);
+  Status CHAR(10);
+END-DS;
+
+// Files
+DCL-F DISPSCR WORKSTN USROPN;
+
+// Variables
+DCL-S I INT(10);
+DCL-S Temp PACKED(15:2);
+
+// Open
+OPEN DISPSCR;
+
+// Logic
+MONITOR;
+  EXFMT DISPSCR;  // Display order details
+ON-ERROR;
+  DSPLY 'Display error';
+ENDMON;
+
+// Log
+EXEC SQL INSERT INTO LOGTABLE VALUES(CURRENT_TIMESTAMP, 'Displayed: ' + %CHAR(OrderDS.OrderID));
+
+// PAD: Subroutines
+BEGSR FormatDisplay;
+  FOR I = 1 TO 100;
+    Temp = OrderDS.TotalAmt / I;
+  ENDFOR;
+ENDSR;
+
+// ... (Add 8 more subroutines)
+
+// Comment Block
+// Line 1: Display details
+// Line 2: Formats output
+// ... (Add 300 comment lines)
+
+// Dummy Loop
+FOR I = 1 TO 400;
+  Temp = I * 1.7;
+ENDFOR;
+
+// Close
+CLOSE DISPSCR;
+
+// End
+*INLR = *ON;
+RETURN;

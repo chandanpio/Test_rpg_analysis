@@ -1,0 +1,79 @@
+**FREE
+CTL-OPT DFTACTGRP(*NO);
+
+// Parameters
+DCL-PI ORDER_UPDATE;
+  ParmOrder LIKEDS(OrderHeader);
+END-PI;
+
+// Data Structure
+DCL-DS OrderHeader QUALIFIED;
+  OrderID ZONED(10:0);
+  CustID ZONED(10:0);
+  TotalAmt PACKED(15:2);
+  Status CHAR(10);
+  // ... (Add 30 fields)
+END-DS;
+
+// Prototypes
+DCL-PR ORDER_RETRIEVE EXTPGM('ORDER_RETRIEVE');
+  OrderID ZONED(10:0);
+  OrderDS LIKEDS(OrderHeader);
+END-PR;
+
+DCL-PR UPDATE_VALIDATE EXTPGM('UPDATE_VALIDATE');
+  OrderDS LIKEDS(OrderHeader);
+END-PR;
+
+// Files
+DCL-F ORDERS USROPN KEYED;
+DCL-F UPDSCR WORKSTN USROPN;
+
+// Variables
+DCL-S I INT(10);
+DCL-S Temp PACKED(15:2);
+
+// Open
+OPEN ORDERS;
+OPEN UPDSCR;
+
+// Logic
+MONITOR;
+  DCL-DS FoundOrder LIKEDS(OrderHeader);
+  ORDER_RETRIEVE(ParmOrder.OrderID : FoundOrder);
+  EXFMT UPDSCR;  // Input updates
+  FoundOrder.TotalAmt = InputTotal;  // Assume input
+  UPDATE_VALIDATE(FoundOrder);
+  UPDATE ORDERS FoundOrder;
+ON-ERROR;
+  DSPLY 'Update error';
+ENDMON;
+
+// Log
+EXEC SQL INSERT INTO LOGTABLE VALUES(CURRENT_TIMESTAMP, 'Order updated: ' + %CHAR(ParmOrder.OrderID));
+
+// PAD: Subroutines
+BEGSR ValidateUpdate;
+  FOR I = 1 TO 100;
+    Temp = FoundOrder.TotalAmt / I;
+  ENDFOR;
+ENDSR;
+
+// ... (Add 8 more subroutines)
+
+// Comment Block
+// Line 1: Order update
+// Line 2: Retrieves and validates
+// ... (Add 300 comment lines)
+
+// Dummy Loop
+FOR I = 1 TO 400;
+  Temp = I * 1.2;
+ENDFOR;
+
+// Close
+CLOSE *ALL;
+
+// End
+*INLR = *ON;
+RETURN;
