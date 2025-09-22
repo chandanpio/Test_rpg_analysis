@@ -20,6 +20,12 @@ DCL-DS Customer QUALIFIED;
   CreditLimit PACKED(15:2);
 END-DS;
 
+// Prototypes
+DCL-PR INVENT_REPORT EXTPGM('INVENT_REPORT');
+  CustID ZONED(10:0);
+  CustDS LIKEDS(Customer);
+END-PR;
+
 // Files
 DCL-F CUSTOMERS USROPN KEYED;
 
